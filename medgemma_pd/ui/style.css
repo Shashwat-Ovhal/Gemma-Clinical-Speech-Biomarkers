@@ -1,0 +1,107 @@
+:root {
+    --primary: 210, 100%, 50%; /* Medical Blue */
+    --surface: 220, 20%, 97%;
+    --surface-card: 0, 0%, 100%;
+    --text-main: 220, 20%, 20%;
+    --text-muted: 220, 10%, 50%;
+    --accent-risk: 0, 80%, 60%;
+    --accent-safe: 150, 60%, 45%;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: hsl(var(--surface));
+    color: hsl(var(--text-main));
+    margin: 0;
+    padding: 2rem;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+}
+
+.header {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: hsl(var(--primary));
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card {
+    background: hsl(var(--surface-card));
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.metric-box {
+    background: hsl(var(--surface));
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.metric-val {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: block;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: hsl(var(--text-muted));
+}
+
+.medgemma-insight {
+    border-left: 4px solid hsl(var(--primary));
+    background: linear-gradient(to right, hsla(var(--primary), 0.05), transparent);
+}
+
+h2 { font-size: 1.25rem; margin-top: 0; }
+h3 { font-size: 1.1rem; }
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+.status-high { background: hsla(var(--accent-risk), 0.15); color: hsl(var(--accent-risk)); }
+.status-normal { background: hsla(var(--accent-safe), 0.15); color: hsl(var(--accent-safe)); }
+
+pre { white-space: pre-wrap; font-family: inherit; }

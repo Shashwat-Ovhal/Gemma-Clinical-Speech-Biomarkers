@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedGemma-PD Clinical Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="data.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <header class="header">
+        <div class="brand">
+            <span>✨ MedGemma</span>
+            <span style="color: black; font-weight: 400;">PD Impact</span>
+        </div>
+        <div id="connection-status">
+            <span class="status-badge status-normal">● System Online</span>
+        </div>
+    </header>
+
+    <!-- Sidebar: Patient Info and Raw Signals -->
+    <aside class="sidebar">
+        <div class="card">
+            <h2>Patient Context</h2>
+            <div id="patient-info">
+                <p><strong>ID:</strong> <span id="pid">--</span></p>
+                <p><strong>Session:</strong> Month <span id="session">--</span></p>
+                <p><strong>Source:</strong> <span id="source">--</span></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Raw Biomarkers</h2>
+            <p class="metric-label">Extracted via Audio Pipeline</p>
+            <div class="metric-grid" style="grid-template-columns: 1fr;">
+                <div class="metric-box">
+                    <span class="metric-val" id="val-jitter">--%</span>
+                    <span class="metric-label">Jitter (Local)</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-val" id="val-hnr">--</span>
+                    <span class="metric-label">HNR (dB)</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main: Reasoning & Insights -->
+    <main class="main-content">
+        
+        <!-- Top: ML Signals (The "Before" view) -->
+        <div class="card">
+            <h2>Baseline Signal Analysis</h2>
+            <div class="metric-grid">
+                <div class="metric-box">
+                    <span class="metric-val" id="val-risk">--</span>
+                    <span class="metric-label">Risk Signal (0-1)</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-val" id="val-trend">--</span>
+                    <span class="metric-label">Progression Trend</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-val">High</span>
+                    <span class="metric-label">Data Confidence</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Core: MedGemma (The "After" view) -->
+        <div class="card medgemma-insight">
+            <h2>🧠 MedGemma Clinical Reasoning</h2>
+            <p style="font-size: 0.9em; color: #666; margin-bottom: 1rem;">
+                Synthesized from audio biomarkers, longitudinal history, and baseline signals.
+            </p>
+            
+            <div id="insight-container">
+                <pre id="insight-text">Loading analysis...</pre>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!window.medgemmaData) {
+            document.getElementById('insight-text').textContent = "Error: No data found. Please run 'python main.py' first.";
+            return;
+        }
+
+        const data = window.medgemmaData.packet;
+        const insight = window.medgemmaData.insight;
+        
+        // 1. Populate Patient Info
+        document.getElementById('pid').textContent = data.meta.patient_id;
+        document.getElementById('session').textContent = data.meta.session_month;
+        document.getElementById('source').textContent = "Hybrid (PC-GITA + UCI)";
+
+        // 2. Populate Biomarkers
+        const jitter = data.clinical_biomarkers.voice_features.jitter_local * 100;
+        document.getElementById('val-jitter').textContent = jitter.toFixed(3) + "%";
+        document.getElementById('val-hnr').textContent = data.clinical_biomarkers.voice_features.hnr.toFixed(2);
+
+        // 3. Populate Signals
+        document.getElementById('val-risk').textContent = data.model_signals.risk_probability.toFixed(2);
+        document.getElementById('val-trend').textContent = data.longitudinal_context.trend_analysis.updrs_trend.toUpperCase();
+
+        // 4. Populate Insight
+        // Simple markdown cleanup for display
+        document.getElementById('insight-text').textContent = insight.replace(/###/g, '').trim();
+    });
+</script>
+</body>
+</html>
