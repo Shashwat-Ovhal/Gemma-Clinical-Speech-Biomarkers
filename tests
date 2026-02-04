@@ -1,0 +1,14 @@
+try:
+    from medgemma_pd.audio_pipeline.features import FeatureExtractor
+    import numpy as np
+    print("FeatureExtractor Imported")
+    
+    y = np.random.rand(16000)
+    sr = 16000
+    feats = FeatureExtractor.extract_features(y, sr)
+    print(f"Features: {feats.keys()}")
+    
+    with open("features_ok.txt", "w") as f: f.write("OK")
+    
+except Exception as e:
+    print(f"FAIL: {e}")

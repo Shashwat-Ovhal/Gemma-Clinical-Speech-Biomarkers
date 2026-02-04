@@ -1,0 +1,63 @@
+import os
+import pandas as pd
+import glob
+
+OUTPUT_FILE = "mapping_results.txt"
+
+def analyze():
+    output = []
+    output.append("--- MDVR-KCL Audio Analysis ---")
+    
+    # MDVR Root
+    mdvr_root = r"dataset- MDVR-KCL Dataset\26_29_09_2017_KCL\26-29_09_2017_KCL\ReadText"
+    
+    # Find PD
+    pd_path = os.path.join(mdvr_root, "PD")
+    if os.path.exists(pd_path):
+        wavs = glob.glob(os.path.join(pd_path, "*.wav"))
+        output.append(f"Found {len(wavs)} PD files in {pd_path}")
+        output.append("Sample PD Files:")
+        for f in wavs[:3]:
+            output.append(f"  {os.path.basename(f)}")
+    else:
+        output.append(f"PD Path not found: {pd_path}")
+
+    # Find HC
+    hc_path = os.path.join(mdvr_root, "HC")
+    if not os.path.exists(hc_path):
+        hc_path = os.path.join(mdvr_root, "Control")
+    
+    if os.path.exists(hc_path):
+        wavs = glob.glob(os.path.join(hc_path, "*.wav"))
+        output.append(f"Found {len(wavs)} HC files in {hc_path}")
+        output.append("Sample HC Files:")
+        for f in wavs[:3]:
+            output.append(f"  {os.path.basename(f)}")
+    else:
+        output.append(f"HC Path not found: {hc_path}")
+
+    output.append("\n--- UCI Telemonitoring Analysis ---")
+    uci_path = r"dataset- Parkinsons Telemonitoring/parkinsons_updrs.data"
+    
+    try:
+        df = pd.read_csv(uci_path)
+        severity = df.groupby('subject#')['total_UPDRS'].max().sort_values(ascending=False)
+        
+        output.append("Top 3 High Severity (Use for PD Mapping):")
+        for subj, score in severity.head(3).items():
+            output.append(f"  Subject {subj}: Max UPDRS {score}")
+            
+        output.append("\nTop 3 Low Severity (Use for HC Mapping):")
+        for subj, score in severity.tail(3).items():
+            output.append(f"  Subject {subj}: Max UPDRS {score}")
+            
+    except Exception as e:
+        output.append(f"Error reading UCI: {e}")
+
+    with open(OUTPUT_FILE, "w") as f:
+        f.write("\n".join(output))
+    
+    print(f"Analysis written to {OUTPUT_FILE}")
+
+if __name__ == "__main__":
+    analyze()

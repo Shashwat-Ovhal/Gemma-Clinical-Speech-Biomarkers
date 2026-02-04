@@ -1,63 +1,85 @@
 window.medgemmaData = {
   "packet": {
     "meta": {
-      "patient_id": "P07",
-      "session_month": 6,
-      "data_source": "PC-GITA + UCI Telemonitoring"
+      "patient_id": "ID02",
+      "filename": "C:\\Users\\Shashwat\\OneDrive\\Desktop\\test.wav"
     },
     "clinical_biomarkers": {
       "voice_features": {
         "valid_voice_detected": true,
-        "f0_mean": 137.32736638492162,
-        "f0_std": 5.660298113369516,
-        "jitter_local": 0.005788537168964949,
-        "shimmer_local": 0.04756279286853845,
-        "hnr": 23.708673264322613,
-        "mfcc_mean": -10.33433149483482,
-        "mfcc_std": 41.83949913886199,
-        "spectral_centroid": 1952.6562547738188
-      },
-      "reference_ranges": {
-        "jitter_normal": "< 1.04%",
-        "hnr_normal": "> 20 dB"
+        "f0_mean": 160.0,
+        "f0_std": 10.0,
+        "jitter_local": 0.015116000000000001,
+        "shimmer_local": 0.1638848315845658,
+        "hnr": 24.942,
+        "latency_ms": 327.0423412322998
       }
     },
     "longitudinal_context": {
-      "history_summary": [
-        {
-          "subject_id": "P07",
-          "session_month": 0,
-          "motor_updrs": 15,
-          "total_updrs": 22,
-          "jitter_percent": 0.6,
-          "hnr": 22.0
-        },
-        {
-          "subject_id": "P07",
-          "session_month": 3,
-          "motor_updrs": 18,
-          "total_updrs": 28,
-          "jitter_percent": 0.9,
-          "hnr": 18.0
-        }
-      ],
+      "found": true,
+      "subject_id": 35,
+      "record_count": 165,
+      "baseline": {
+        "motor_updrs": 36.073,
+        "total_updrs": 54.073
+      },
+      "latest": {
+        "motor_updrs": 34.163,
+        "total_updrs": 53.109,
+        "time_day": 202.43
+      },
       "trend_analysis": {
-        "updrs_slope": 2.1666666666666656,
-        "updrs_trend": "worsening",
-        "jitter_slope": 0.09999999999999998
+        "updrs_trend": "stable",
+        "delta_updrs": -0.96
       }
     },
     "model_signals": {
-      "risk_probability": 0.0191,
-      "signal_interpretation": "Within normal limits"
-    },
-    "confidence_assessment": {
-      "data_quality": "High",
-      "missing_modalities": [
-        "motor_assessment",
-        "cognitive_score"
-      ]
+      "risk_probability": 0.75
     }
   },
-  "insight": "\n### MedGemma Clinical Insight\n**Patient P07 | Session Month 6**\n\n**Assessment**: High Risk of Motor Progression\nThe analysis of current speech biomarkers combined with longitudinal history indicates a significant deterioration in motor control stability.\n\n**Key Evidence**:\n1.  **Biomarker Deviation**: Current Jitter is **0.58%** (Norm: <1.04%), which is a marked increase from Month 3.\n2.  **Longitudinal Trend**: UPDRS scores show a consistent **worsening** trajectory over the last 6 months.\n3.  **Signal Concordance**: The ML risk signal (0.02) aligns with the observed degradation in Harmonic-to-Noise Ratio (HNR).\n\n**Uncertainty & Gaps**:\nThis assessment relies solely on speech telemonitoring. Absence of recent clinical motor exams limits definitive staging.\n\n**Recommendation**:\nSchedule in-person neurology review within 4 weeks. Prioritize adjustment of dopaminergic therapy.\n            "
+  "insight": "### MedGemma Clinical Insight\n**Patient ID02 | Automated Assessment**\n\n**Assessment**: At Risk (Risk Signal: 0.75)\nAnalysis of speech biomarkers suggests at risk motor control.\n\n**Evidence Integration**:\n1.  **Speech Biomarkers**:\n    *   Jitter: **1.512%** (Norm: <1.04%) - Elevated\n    *   Shimmer: **16.388%** (Norm: <3.8%)\n    *   HNR: **24.94dB** (Norm: >20dB)\n\n2.  **Longitudinal Context (UCI History)**:\n    *   UPDRS Trend: **Stable**\n    *   Change from Baseline: -0.96 points\n    \n3.  **Synthesis**:\n    The acoustic features (specifically Jitter=1.51%) are divergent with the historical UPDRS trend.\n    \n**Recommendation**:\nSchedule Neurology Review",
+  "pipeline_report": {
+    "pipeline_version": "1.0.0-medical",
+    "timestamp": 1770228298.4422805,
+    "status": "success",
+    "stages": {
+      "validation": {
+        "valid": true,
+        "error": null,
+        "metadata": {
+          "sample_rate": 44100,
+          "channels": 1,
+          "duration_sec": 157.55666666666667
+        }
+      },
+      "preprocessing": {
+        "trim_removed_sec": 6.25e-05,
+        "resample_rate": 16000,
+        "normalization_gain": 0.7065517288781947
+      },
+      "quality_control": {
+        "passed": true,
+        "metrics": {
+          "duration": 157.556625,
+          "clipping_ratio": 0.0,
+          "rms_energy": 0.04397392554152084
+        },
+        "reasons": []
+      },
+      "feature_extraction": {
+        "valid_voice_detected": true,
+        "f0_mean": 160.0,
+        "f0_std": 10.0,
+        "jitter_local": 0.015116000000000001,
+        "shimmer_local": 0.1638848315845658,
+        "hnr": 24.942,
+        "latency_ms": 327.0423412322998
+      }
+    },
+    "processing_time": 27.042312383651733,
+    "meta": {
+      "filename": "test.wav",
+      "size_bytes": 20844791
+    }
+  }
 };
