@@ -30,7 +30,7 @@ def main():
         if wavs:
             print(f"Suggestion: Try '{wavs[0]}'")
         return
-    from medgemma_pd.reasoning.history_loader import HistoryLoader
+    from medgemma_pd.history_loader import HistoryLoader
     from medgemma_pd.audio_pipeline.pipeline import MedicalAudioPipeline
     from medgemma_pd.reasoning.engine import MedGemmaEngine
 

@@ -10,7 +10,7 @@ from medgemma_pd.audio_pipeline.validation import InputValidator
 from medgemma_pd.audio_pipeline.preprocessing import AudioPreprocessor
 from medgemma_pd.audio_pipeline.quality_control import SignalQualityControl as QualityControl # Fix class name alias
 from medgemma_pd.audio_pipeline.features import FeatureExtractor
-from medgemma_pd.reasoning.history_loader import HistoryLoader
+from medgemma_pd.history_loader import HistoryLoader
 from medgemma_pd.reasoning.engine import MedGemmaEngine
 
 import matplotlib.pyplot as plt

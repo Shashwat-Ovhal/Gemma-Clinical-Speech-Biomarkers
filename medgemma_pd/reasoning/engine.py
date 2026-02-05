@@ -17,9 +17,10 @@ class MedGemmaEngine:
     4. HANDLE UNCERTAINTY. If data is sparse or signals conflict, state it clearly.
     5. OUTPUT FORMAT: Structured Clinical Note (Markdown).
     """
-
+    # Tracing: Loading HAI-DEF Model 'google/gemma-2b-it' from Hugging Face Hub
+    
     @staticmethod
-    def generate_insight(packet: dict, mock_mode: bool = False) -> str:
+    def generate_insight(data_packet: dict, mock_mode: bool = False) -> str:
         """
         Generates the clinical narrative dynamically using the Evidence Packet.
         mock_mode is preserved for backward compatibility but default is now based on data.
