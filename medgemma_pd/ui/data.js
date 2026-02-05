@@ -1,46 +1,45 @@
 window.medgemmaData = {
   "packet": {
     "meta": {
-      "patient_id": "ID02",
-      "filename": "C:\\Users\\Shashwat\\OneDrive\\Desktop\\test.wav"
+      "patient_id": "34",
+      "filename": "dataset- MDVR-KCL Dataset\\26_29_09_2017_KCL\\26-29_09_2017_KCL\\ReadText\\PD\\ID34_pd_2_0_0.wav"
     },
     "clinical_biomarkers": {
       "voice_features": {
+        "jitter_local": 0.3743360094962463,
+        "shimmer_local": 0.1411097274282635,
+        "hnr": 9.622366162325399,
+        "f0_mean": 352.53605273598197,
         "valid_voice_detected": true,
-        "f0_mean": 160.0,
-        "f0_std": 10.0,
-        "jitter_local": 0.015116000000000001,
-        "shimmer_local": 0.1638848315845658,
-        "hnr": 24.942,
-        "latency_ms": 327.0423412322998
+        "latency_ms": 111.71317100524902
       }
     },
     "longitudinal_context": {
       "found": true,
-      "subject_id": 35,
-      "record_count": 165,
+      "subject_id": 34,
+      "record_count": 161,
       "baseline": {
-        "motor_updrs": 36.073,
-        "total_updrs": 54.073
+        "motor_updrs": 29.291,
+        "total_updrs": 34.146
       },
       "latest": {
-        "motor_updrs": 34.163,
-        "total_updrs": 53.109,
-        "time_day": 202.43
+        "motor_updrs": 26.781,
+        "total_updrs": 34.817,
+        "time_day": 178.68
       },
       "trend_analysis": {
         "updrs_trend": "stable",
-        "delta_updrs": -0.96
+        "delta_updrs": 0.67
       }
     },
     "model_signals": {
       "risk_probability": 0.75
     }
   },
-  "insight": "### MedGemma Clinical Insight\n**Patient ID02 | Automated Assessment**\n\n**Assessment**: At Risk (Risk Signal: 0.75)\nAnalysis of speech biomarkers suggests at risk motor control.\n\n**Evidence Integration**:\n1.  **Speech Biomarkers**:\n    *   Jitter: **1.512%** (Norm: <1.04%) - Elevated\n    *   Shimmer: **16.388%** (Norm: <3.8%)\n    *   HNR: **24.94dB** (Norm: >20dB)\n\n2.  **Longitudinal Context (UCI History)**:\n    *   UPDRS Trend: **Stable**\n    *   Change from Baseline: -0.96 points\n    \n3.  **Synthesis**:\n    The acoustic features (specifically Jitter=1.51%) are divergent with the historical UPDRS trend.\n    \n**Recommendation**:\nSchedule Neurology Review",
+  "insight": "### MedGemma Clinical Insight\n**Patient 34 | Automated Assessment**\n\n**Assessment**: At Risk (Risk Signal: 0.75)\nAnalysis of speech biomarkers suggests at risk motor control.\n\n**Evidence Integration**:\n1.  **Speech Biomarkers**:\n    *   Jitter: **37.434%** (Norm: <1.04%) - Elevated\n    *   Shimmer: **14.111%** (Norm: <3.8%)\n    *   HNR: **9.62dB** (Norm: >20dB)\n\n2.  **Longitudinal Context (UCI History)**:\n    *   UPDRS Trend: **Stable**\n    *   Change from Baseline: +0.67 points\n    \n3.  **Synthesis**:\n    The acoustic features (specifically Jitter=37.43%) are divergent with the historical UPDRS trend.\n    \n**Recommendation**:\nSchedule Neurology Review",
   "pipeline_report": {
     "pipeline_version": "1.0.0-medical",
-    "timestamp": 1770228298.4422805,
+    "timestamp": 1770236579.1553981,
     "status": "success",
     "stages": {
       "validation": {
@@ -49,37 +48,36 @@ window.medgemmaData = {
         "metadata": {
           "sample_rate": 44100,
           "channels": 1,
-          "duration_sec": 157.55666666666667
+          "duration_sec": 127.92086167800454
         }
       },
       "preprocessing": {
         "trim_removed_sec": 6.25e-05,
         "resample_rate": 16000,
-        "normalization_gain": 0.7065517288781947
+        "normalization_gain": 0.7277699345785482
       },
       "quality_control": {
         "passed": true,
         "metrics": {
-          "duration": 157.556625,
+          "duration": 127.9208125,
           "clipping_ratio": 0.0,
-          "rms_energy": 0.04397392554152084
+          "rms_energy": 0.03769490652833808
         },
         "reasons": []
       },
       "feature_extraction": {
+        "jitter_local": 0.3743360094962463,
+        "shimmer_local": 0.1411097274282635,
+        "hnr": 9.622366162325399,
+        "f0_mean": 352.53605273598197,
         "valid_voice_detected": true,
-        "f0_mean": 160.0,
-        "f0_std": 10.0,
-        "jitter_local": 0.015116000000000001,
-        "shimmer_local": 0.1638848315845658,
-        "hnr": 24.942,
-        "latency_ms": 327.0423412322998
+        "latency_ms": 111.71317100524902
       }
     },
-    "processing_time": 27.042312383651733,
+    "processing_time": 7.494616746902466,
     "meta": {
-      "filename": "test.wav",
-      "size_bytes": 20844791
+      "filename": "ID34_pd_2_0_0.wav",
+      "size_bytes": 16923974
     }
   }
 };
