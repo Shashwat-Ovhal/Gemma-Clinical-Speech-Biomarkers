@@ -6,7 +6,7 @@
 [![Streamlit](https://img.shields.io/badge/Demo-Streamlit-red)](https://streamlit.io)
 [![Status](https://img.shields.io/badge/Status-Research%20Prototype-success)]()
 
-> **Winner of the Agentic Workflow Track (Target)** | *MedGemma Impact Challenge 2026*
+> *MedGemma Impact Challenge 2026*
 
 ---
 
@@ -63,7 +63,7 @@ Real-world clinical audio is noisy. We implemented a custom Quality Assurance La
 
 ---
  
-## 🚀 Major Upgrade: ML-Powered Validation (v2.0)
+## 🚀 Major Upgrade: ML-Powered Validation
  
 As of Feb 2026, MedGemma-PD has evolved from a rule-based system to a **scientifically validated ML pipeline**.
 
