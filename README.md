@@ -61,33 +61,33 @@ Real-world clinical audio is noisy. We implemented a custom Quality Assurance La
 *   **Smart Trim:** Automatically detects and strips non-diagnostic leading silence (dynamic 60dB threshold).
 *   **Soft Fallback Mechanism:** If a signal is too weak or "Unvoiced," the system does not crash. It triggers a "Low Confidence" fallback mode, alerting the clinician to re-record.
 
-64: ---
-65: 
-66: ## 🚀 Major Upgrade: ML-Powered Validation (v2.0)
-67: 
-68: As of Feb 2026, MedGemma-PD has evolved from a rule-based system to a **scientifically validated ML pipeline**.
-69: 
-70: ### 1. Advanced Feature Extraction (The "Stable Segment" Logic)
-71: Traditional jitter algorithms fail on continuous speech because they confuse "intonation" (pitch change) with "tremor" (instability). 
-72: *   **Old Way**: Calculate jitter over the whole file -> Result: High False Positives for healthy users.
-73: *   **New Way**: We implemented a custom **"Jitter Minimization" algorithm** that scans the audio to find the *most stable 0.5s vowel segment*. This replicates how a clinician asks a patient to say "Ahhh" even if the patient reads a full sentence.
-74: 
-75: ### 2. Risk Engine: Random Forest vs. Logistic Regression
-76: We trained two models on the **MDVR-KCL Dataset** (37 Patients):
-77: *   **Baseline (Logistic Regression)**: 70% Accuracy.
-78: *   **MedGemma-RF (Random Forest)**: 65% Accuracy, but with higher robustness to noise.
-79: 
-80: The system now uses **MedGemma-RF** for inference, checking 4 key biomarkers:
-81: *   **F0_Std** (Pitch Stability) - Top Predictor (29%)
-82: *   **HNR** (Noise Level)
-83: *   **Shimmer** (Amplitude)
-84: *   **Jitter** (Frequency)
-85: 
-86: > **Validation Success**: This upgrade improved the **Healthy Control Pass Rate** from 28% to **85.7%**, drastically reducing false alarms.
-87: 
-88: ---
-89: 
-90: ## 🚀 Quick Start & Installation
+---
+ 
+## 🚀 Major Upgrade: ML-Powered Validation (v2.0)
+ 
+As of Feb 2026, MedGemma-PD has evolved from a rule-based system to a **scientifically validated ML pipeline**.
+
+### 1. Advanced Feature Extraction (The "Stable Segment" Logic)
+Traditional jitter algorithms fail on continuous speech because they confuse "intonation" (pitch change) with "tremor" (instability). 
+*   **Old Way**: Calculate jitter over the whole file -> Result: High False Positives for healthy users.
+*   **New Way**: We implemented a custom **"Jitter Minimization" algorithm** that scans the audio to find the *most stable 0.5s vowel segment*. This replicates how a clinician asks a patient to say "Ahhh" even if the patient reads a full sentence.
+
+### 2. Risk Engine: Random Forest vs. Logistic Regression
+We trained two models on the **MDVR-KCL Dataset** (37 Patients):
+*   **Baseline (Logistic Regression)**: 70% Accuracy.
+*   **MedGemma-RF (Random Forest)**: 65% Accuracy, but with higher robustness to noise.
+
+The system now uses **MedGemma-RF** for inference, checking 4 key biomarkers:
+*   **F0_Std** (Pitch Stability) - Top Predictor (29%)
+*   **HNR** (Noise Level)
+*   **Shimmer** (Amplitude)
+*   **Jitter** (Frequency)
+
+> **Validation Success**: This upgrade improved the **Healthy Control Pass Rate** from 28% to **85.7%**, drastically reducing false alarms.
+
+---
+
+🚀 Quick Start & Installation
 
 ### Prerequisites
 *   Python 3.9+
