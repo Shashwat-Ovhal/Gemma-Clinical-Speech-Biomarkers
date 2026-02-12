@@ -37,7 +37,7 @@ def main():
 
     # --- 1. Custom Banner ---
     if os.path.exists("assets/medgemma_banner.png"):
-        st.image("assets/medgemma_banner.png", use_column_width=True)
+        st.image("assets/medgemma_banner.png")
     else:
         st.title("🧠 MedGemma-PD: Clinical Decision Support")
         st.markdown("### AI-Augmented Biomarker Analysis & Reasoning Engine")
@@ -122,10 +122,8 @@ def main():
             shimmer = features.get("shimmer_local", 0.0) * 100
             hnr = features.get("hnr", 0.0)
 
-            if "pd" in uploaded_file.name.lower() or "id18" in uploaded_file.name.lower():
-                 jitter *= 3.0
-                 shimmer *= 1.8
-                 hnr *= 0.8
+            # --- REMOVED: Demo Hacks (Tripling jitter based on filename) ---
+            # The system now relies on actual signal processing.
             
             # 5. History Context
             mapped_subj = HistoryLoader.ID_MAPPING.get(patient_id, 1)
@@ -133,18 +131,28 @@ def main():
             current_updrs = history.get("latest", {}).get("total_updrs", 0)
 
             # 6. Reasoning Engine
+            from medgemma_pd.models.signals import MLSignalGenerator
+            
+            # Generate ML Signals
+            ml_risk = MLSignalGenerator.predict_risk_score({
+                "jitter_local": features.get("jitter_local", 0.0), # Pass raw ratio
+                "shimmer_local": features.get("shimmer_local", 0.0),
+                "hnr": hnr,
+                "f0_std": features.get("f0_std", 0.0)
+            })
+
             packet = {
                 "meta": {"patient_id": patient_id, "file": uploaded_file.name},
                 "clinical_biomarkers": {"voice_features": {
-                    "jitter_local": jitter/100,
+                    "jitter_local": jitter/100, # Back to ratio for consistency if needed, but display uses %
                     "shimmer_local": shimmer/100,
                     "hnr": hnr
                 }},
                 "longitudinal_context": {"trend_analysis": {
-                    "updrs_trend": "deteriorating" if jitter > 1.0 else "stable",
-                    "delta_updrs": 5.0 if jitter > 1.0 else 0.0
+                    "updrs_trend": history.get("trend_analysis", {}).get("updrs_trend", "stable"), 
+                    "delta_updrs": history.get("trend_analysis", {}).get("delta_updrs", 0.0)
                 }},
-                "model_signals": {"risk_probability": 0.85 if jitter > 1.0 else 0.15}
+                "model_signals": {"risk_probability": ml_risk["risk_score"]}
             }
             insight = MedGemmaEngine.generate_insight(packet)
             
@@ -152,53 +160,78 @@ def main():
             
             st.success("✅ Analysis Complete")
             
-            # Row 1: Biomarkers (Glass Box)
+            # Row 1: Snapshot Metrics
+            # Row 1: Snapshot Metrics
+            st.subheader("📊 Biomarker Snapshot")
             col1, col2, col3, col4 = st.columns(4)
-            col1.metric("Jitter (Tremor)", f"{jitter:.3f}%", delta_color="inverse", 
-                        delta="High Risk" if jitter > 1.04 else "Normal")
-            col2.metric("Shimmer (Amp)", f"{shimmer:.3f}%", delta_color="inverse",
-                        delta="High Risk" if shimmer > 3.8 else "Normal")
-            col3.metric("HNR (Noise)", f"{hnr:.2f} dB",
-                        delta="Poor" if hnr < 20 else "Good")
             
-            # --- 4. Visualize History (Trend Chart) ---
-            with col4:
-                # Mock History or Real if available
-                # Create a 6-month trend ending at current score
-                base_score = float(current_updrs) if current_updrs != "N/A" else 10.0
-                trend_data = []
-                for i in range(6):
-                    factor = 0.9 if jitter > 1.0 else 1.0 # Deteriorating vs Stable
-                    score = base_score * (factor ** (5-i))
-                    trend_data.append(score)
-                    
-                chart_data = pd.DataFrame(trend_data, columns=["UPDRS Score"])
-                st.line_chart(chart_data, height=100)
-                st.caption("6-Month UPDRS Trend")
+            # Jitter (Lower is Better)
+            jitter_status = "High Risk" if jitter > 1.04 else "Normal"
+            jitter_color = "inverse" if jitter_status == "High Risk" else "normal"
+            col1.metric("Jitter (Tremor)", f"{jitter:.3f}%", delta=jitter_status, delta_color=jitter_color)
+            
+            # Shimmer (Lower is Better)
+            shimmer_status = "High Risk" if shimmer > 3.8 else "Normal"
+            shimmer_color = "inverse" if shimmer_status == "High Risk" else "normal"
+            col2.metric("Shimmer (Amp)", f"{shimmer:.3f}%", delta=shimmer_status, delta_color=shimmer_color)
+            
+            # HNR (Higher is Better)
+            if hnr < 20:
+                hnr_status = "Poor"
+                hnr_color = "inverse" # "Poor" string is "positive" (up), in inverse this is Red.
+            else:
+                hnr_status = "Good"
+                hnr_color = "normal" # "Good" string is "positive" (up), in normal this is Green.
+                
+            col3.metric("HNR (Noise)", f"{hnr:.2f} dB", delta=hnr_status, delta_color=hnr_color)
+            
+            col4.metric("Current UPDRS", history.get("latest", {}).get("total_updrs", "N/A"))
 
-            # Row 2: Clinical Insight (Columns)
+            # Row 2: Longitudinal Context (The "Historian Agent")
             st.divider()
-            st.subheader("📝 Clinical Logic Insight")
+            
+            # Mock History or Real if available
+            base_score = float(current_updrs) if current_updrs != "N/A" else 10.0
+            trend_data = []
+            for i in range(6):
+                factor = 0.9 if jitter > 1.0 else 1.0 # Deteriorating vs Stable
+                score = base_score * (factor ** (5-i))
+                trend_data.append(score)
+            
+            chart_data = pd.DataFrame({
+                "Month": ["M-5", "M-4", "M-3", "M-2", "M-1", "Current"],
+                "UPDRS Score": trend_data
+            }).set_index("Month")
+            
+            st.subheader("📉 Agent 2: Longitudinal Progression (6-Month Trend)")
+            st.line_chart(chart_data, color="#FF4B4B")  # Red for attention
+
+            # Row 3: Clinical Insight (Columns)
+            st.divider()
+            st.subheader("📝 Agent 3: Clinical Logic & Reasoning")
             
             # --- 5. Layout with Columns ---
             c1, c2 = st.columns([2, 1])
             
             with c1:
-                st.markdown("#### Evidence Integration")
-                # Parse the note to extract evidence part? 
-                # Or just display full note. The note format is structured.
-                # Let's clean it up for display.
-                st.markdown(insight)
+                st.markdown("#### Evidence Synthesis")
+                st.info(insight)
 
             with c2:
-                st.markdown("#### Recommendation")
-                rec_type = "Urgent" if jitter > 1.0 else "Routine"
-                if rec_type == "Urgent":
+                st.markdown("#### Final Decision")
+                # Use model risk score (0.0 - 1.0)
+                risk_score = packet["model_signals"]["risk_probability"]
+                
+                # Thresholds: Low < 0.3 < Moderate < 0.6 < High
+                if risk_score > 0.6:
                     st.error("⚠️ **Schedule Neurology Review**")
-                    st.markdown("*Reason: High frequency tremor detected concordant with history.*")
+                    st.markdown(f"*Reason: High Risk Probability ({risk_score:.2f}) detected.*")
+                elif risk_score > 0.3:
+                    st.warning("⚠️ **Monitor Closely**")
+                    st.markdown(f"*Reason: Elevated Risk Probability ({risk_score:.2f}).*")
                 else:
                     st.success("✅ **Continue Monitoring**")
-                    st.markdown("*Reason: Biomarkers within stable baseline.*")
+                    st.markdown(f"*Reason: Biomarkers within safe range ({risk_score:.2f}).*")
             
             # Debug Expander
             with st.expander("Show Technical Logs"):

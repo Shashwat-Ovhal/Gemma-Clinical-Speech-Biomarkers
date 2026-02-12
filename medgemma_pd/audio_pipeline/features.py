@@ -44,90 +44,182 @@ class FeatureExtractor:
     @staticmethod
     def _extract_numpy_features(y: np.ndarray, sr: int, features: dict):
         """
-        Approximate clinical features using pure signal processing.
-        Real data processing without external dependencies.
+        Extracts clinical features using robust Autocorrelation (ACF) method.
+        Replaces flawed Zero-Crossing Rate (ZCR) approach.
         """
-        # 1. Pitch (Zero Crossing Rate approx or Autocorrelation)
-        # Simple Autocorrelation for F0
         try:
-            # --- Real Numpy Signal Processing ---
-            from scipy import signal
-
-            # Pre-processing: Simple Low-Pass to remove HF noise for better Pitch/Jitter
-            b, a = signal.butter(4, 0.2, 'low') # 0.2 * Nyquist
-            y_clean = signal.filtfilt(b, a, y)
+            # --- 1. Pitch Detection (Autocorrelation) ---
+            # Frame-based analysis to capture Jitter/Shimmer dynamics
             
-            # 1. Zero-Crossing Rate (ZCR) with Cleaned Signal
-            zero_crossings = np.where(np.diff(np.signbit(y_clean)))[0]
-            if len(zero_crossings) < 10:
+            # Constants for Speech Analysis
+            frame_dur = 0.04 # 40ms analysis window
+            hop_dur = 0.01   # 10ms hop
+            min_f0 = 75      # Hz
+            max_f0 = 600     # Hz
+            
+            frame_len = int(sr * frame_dur)
+            hop_len = int(sr * hop_dur)
+            
+            num_frames = (len(y) - frame_len) // hop_len
+            
+            if num_frames < 3:
+                # Signal too short for analysis
                 features["valid_voice_detected"] = False
                 return
 
-            zc_intervals = np.diff(zero_crossings)
-            mean_period = np.mean(zc_intervals)
-            if mean_period == 0: mean_period = 1.0 
+            f0s = []
+            peaks = []
             
-            # Jitter: Mean Absolute Difference of Intervals
-            period_diffs = np.abs(np.diff(zc_intervals))
-            jitter_zcr = np.mean(period_diffs) / mean_period
-            features["jitter_local"] = float(jitter_zcr * 0.5) # Scale adjustment
-
-            # 2. Shimmer (RMS Variance)
-            frame_size = int(sr * 0.02)
-            if len(y) > frame_size:
-                n_frames = len(y) // frame_size
-                y_framed = y[:n_frames*frame_size].reshape(n_frames, frame_size)
-                energy = np.sqrt(np.mean(y_framed**2, axis=1))
-                active_energy = energy[energy > np.max(energy)*0.01] # Lower threshold
-                
-                if len(active_energy) > 5:
-                    mean_amp = np.mean(active_energy)
-                    amp_diffs = np.abs(np.diff(active_energy))
-                    shimmer_rms = np.mean(amp_diffs) / (mean_amp + 1e-9)
-                    features["shimmer_local"] = float(shimmer_rms * 0.4) 
-                else:
-                    features["shimmer_local"] = 0.0
-            else:
-                 features["shimmer_local"] = 0.0
-
-            # 3. HNR (Harmonic to Noise Ratio) - Corrected Normalization
-            min_lag = int(sr / 500)
-            max_lag = int(sr / 50)
-            mid = len(y) // 2
-            segment = y[mid:mid+2048] if len(y) > 4000 else y
+            # Simple Hanning Window
+            window = np.hanning(frame_len)
             
-            if len(segment) > max_lag * 2:
-                # Normalized Autocorrelation
-                segment = segment - np.mean(segment) # Remove DC
-                corr = np.correlate(segment, segment, mode='full')
-                corr = corr[len(corr)//2:] 
+            for i in range(num_frames):
+                start = i * hop_len
+                frame = y[start : start + frame_len] * window
                 
-                # Normalize by Energy at Lag 0
-                max_energy = corr[0]
-                if max_energy > 0:
-                    corr_norm = corr / max_energy
+                # ACF
+                # Pad to avoid circular convolution separation issues
+                n = len(frame)
+                pad_frame = np.pad(frame, (0, n), mode='constant')
+                f = np.fft.fft(pad_frame)
+                acf = np.fft.ifft(f * np.conj(f)).real
+                acf = acf[:n]
+                
+                # Find Peak in Pitch Range
+                min_lag = int(sr / max_f0)
+                max_lag = int(sr / min_f0)
+                
+                if max_lag >= len(acf): max_lag = len(acf) - 1
+                
+                segment = acf[min_lag:max_lag]
+                if len(segment) == 0: continue
                     
-                    # Search for peak in pitch range
-                    valid_corr = corr_norm[min_lag:max_lag]
-                    if len(valid_corr) > 0:
-                        peak_corr = np.max(valid_corr)
-                        # HNR = 10 log10 (Peak / (1-Peak))
-                        if peak_corr >= 0.99: peak_corr = 0.99
-                        if peak_corr <= 0.01: peak_corr = 0.01
-                        
-                        hnr_est = 10 * np.log10(peak_corr / (1 - peak_corr))
-                        features["hnr"] = float(hnr_est)
-                    else:
-                        features["hnr"] = 0.0
-                else:
-                    features["hnr"] = 0.0
-            else:
-                features["hnr"] = 0.0
+                peak_idx = np.argmax(segment)
+                peak_val = segment[peak_idx]
+                true_lag = min_lag + peak_idx
+                
+                # Voicing Detection (HNR-like check)
+                energy = acf[0] # Energy at lag 0
+                # STRICTER THRESHOLD: 0.45 (was 0.25) to reject noise/breathiness
+                if energy > 0.001 and (peak_val / energy) > 0.45: 
+                    f0 = sr / true_lag
+                    f0s.append(f0)
+                    peaks.append(np.max(np.abs(frame)))
 
-            # 4. Pitch
-            features["f0_mean"] = float(sr / (mean_period * 2))
-
+            # --- 2. Jitter & Shimmer Calculation ---
+            if len(f0s) < 5:
+                # Not enough voiced frames
+                features["valid_voice_detected"] = False
+                return
+                
             features["valid_voice_detected"] = True
+            
+            # --- 2. Stable Segment Selection (The Fix for Continuous Speech) ---
+            # Continuous speech has high pitch variance (intonation). 
+            # We must find the "most sustained vowel" segment to calculate valid jitter.
+            
+            # 2a. Median Filter to remove Octave Jumps (Outliers)
+            from scipy.signal import medfilt
+            f0_arr = medfilt(np.array(f0s), kernel_size=5)
+            amp_arr = np.array(peaks)
+            
+            # Minimum required duration: 0.30 seconds (30 frames)
+            # Find the "Cleanest Vowel"
+            min_window_frames = 30 
+            
+            best_start = 0
+            best_end = len(f0_arr)
+            
+            if len(f0_arr) >= min_window_frames:
+                # Sliding window to find LOWEST JITTER directly
+                min_jitter = float('inf')
+                
+                # We check windows of 0.5 second (50 frames) or if shorter, length-15
+                window_size = min(50, len(f0_arr)) 
+                
+                for i in range(len(f0_arr) - window_size):
+                    # Get Window
+                    w_f0 = f0_arr[i : i+window_size]
+                    w_amp = amp_arr[i : i+window_size]
+                    
+                    # 1. Amplitude Gate (Must be significant part of signal)
+                    if np.mean(w_amp) < (0.2 * np.max(amp_arr)):
+                        continue
+                        
+                    # 2. Calculate Jitter for this window
+                    w_periods = 1.0 / (w_f0 + 1e-9)
+                    avg_per = np.mean(w_periods)
+                    per_diff = np.mean(np.abs(np.diff(w_periods)))
+                    w_jitter = per_diff / avg_per if avg_per > 0 else 1.0
+                    
+                    # Minimize Jitter
+                    if w_jitter < min_jitter:
+                        min_jitter = w_jitter
+                        best_start = i
+                
+                best_end = best_start + window_size
+                # print(f"Best Window Jitter: {min_jitter*100:.3f}%")
+
+            # Extract metrics ONLY from the stable window
+            f0_stable = f0_arr[best_start:best_end]
+            amp_stable = amp_arr[best_start:best_end]
+            
+            # Re-Calculate Periods for the stable segment
+            periods = 1.0 / (f0_stable + 1e-9)
+            
+            # Jitter (Local)
+            avg_period = np.mean(periods)
+            period_diffs = np.abs(np.diff(periods))
+            jitter = np.mean(period_diffs) / avg_period if avg_period > 0 else 0.0
+            
+            # Shimmer (Local)
+            avg_amp = np.mean(amp_stable)
+            amp_diffs = np.abs(np.diff(amp_stable))
+            shimmer = np.mean(amp_diffs) / avg_amp if avg_amp > 0 else 0.0
+            
+            features["jitter_local"] = jitter
+            features["shimmer_local"] = shimmer
+            
+            # Report F0 stats for the Whole file vs Stable
+            features["f0_mean"] = float(np.mean(f0_stable))
+            features["f0_std"] = float(np.std(f0_stable)) # Use stable std
+            features["f0_trace_std"] = float(np.std(f0_arr)) # Full file std (for detection)
+
+            # --- 3. HNR (Harmonoic-to-Noise Ratio) ---
+            # Global estimate from middle of signal
+            mid = len(y) // 2
+            seg_len = min(len(y), 4096)
+            mid_segment = y[mid - seg_len//2 : mid + seg_len//2]
+            
+            # ACF of segment
+            n = len(mid_segment)
+            pad_seg = np.pad(mid_segment, (0, n), mode='constant')
+            f_seg = np.fft.fft(pad_seg)
+            acf_seg = np.fft.ifft(f_seg * np.conj(f_seg)).real
+            acf_seg = acf_seg[:n]
+            
+            min_lag = int(sr / 600)
+            max_lag = int(sr / 75)
+            
+            if max_lag < len(acf_seg):
+                peak_target = acf_seg[min_lag:max_lag]
+                if len(peak_target) > 0:
+                    peak_val = np.max(peak_target)
+                    total_energy = acf_seg[0]
+                    
+                    if total_energy > peak_val:
+                        # HNR = 10 * log10 (Harmonic / Noise)
+                        # Where Harmonic ~ Peak, Noise ~ Total - Peak
+                        ratio = peak_val / (total_energy - peak_val + 1e-9)
+                        hnr = 10 * np.log10(ratio)
+                    else:
+                        hnr = 100.0 # Clean
+                else:
+                    hnr = 0.0
+            else:
+                hnr = 0.0
+                
+            features["hnr"] = float(hnr)
 
         except Exception as e:
             print(f"[Features] Numpy Error: {e}")

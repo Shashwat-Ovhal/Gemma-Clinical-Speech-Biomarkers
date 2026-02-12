@@ -25,12 +25,26 @@ class MedGemmaEngine:
         Generates the clinical narrative dynamically using the Evidence Packet.
         mock_mode is preserved for backward compatibility but default is now based on data.
         """
+        if mock_mode:
+            # Fallback for when LLM is offline
+            pid = data_packet["meta"]["patient_id"]
+            jitter = data_packet["clinical_biomarkers"]["voice_features"]["jitter_local"] # Logic check
+            return f"**Clinical Assessment**: Patient {pid} shows tremor (Jitter: {jitter*100:.2f}%) compatible with PD."
+
+        # 1. Structure the Prompt using the HAI-DEF Template
+        prompt = f"""
+        ACT AS A SENIOR NEUROLOGIST.
+        ANALYZE THE FOLLOWING PATIENT DATA AND WRITE A CLINICAL NOTE.
+        
+        [PATIENT CONTEXT]
+        ID: {data_packet['meta']['patient_id']}
+        """
         try:
             # 1. Unpack Packet
-            meta = packet.get("meta", {})
-            features = packet["clinical_biomarkers"].get("voice_features", {})
-            history = packet.get("longitudinal_context", {})
-            risk = packet["model_signals"].get("risk_probability", 0.0)
+            meta = data_packet.get("meta", {})
+            features = data_packet["clinical_biomarkers"].get("voice_features", {})
+            history = data_packet.get("longitudinal_context", {})
+            risk = data_packet["model_signals"].get("risk_probability", 0.0)
             
             pid = meta.get("patient_id", "Unknown")
             
@@ -43,7 +57,9 @@ class MedGemmaEngine:
             delta = history.get("trend_analysis", {}).get("delta_updrs", 0.0)
             
             # 3. Construct Narrative (Prompt Engineering Logic)
-            assessment = "At Risk" if jitter > 1.04 or risk > 0.6 else "Stable"
+            # Use the risk score calculated by the ML layer, not a hardcoded threshold here
+            assessment = "At Risk" if risk > 0.6 else "Stable"
+            if 0.3 < risk <= 0.6: assessment = "Monitor"
             
             note = f"""
 ### MedGemma Clinical Insight
@@ -63,10 +79,10 @@ Analysis of speech biomarkers suggests {assessment.lower()} motor control.
     *   Change from Baseline: {delta:+.2f} points
     
 3.  **Synthesis**:
-    The acoustic features (specifically Jitter={jitter:.2f}%) are {'concordant' if (jitter > 1.04 and trend == 'deteriorating') else 'divergent'} with the historical UPDRS trend.
+    The acoustic features (Risk={risk:.2f}) are {'concordant' if (risk > 0.5 and trend == 'deteriorating') else 'divergent'} with the historical UPDRS trend.
     
 **Recommendation**:
-{'Schedule Neurology Review' if assessment == 'At Risk' else 'Continue Telemonitoring'}
+{'Schedule Neurology Review' if assessment == 'At Risk' else ('Monitor Closely' if assessment == 'Monitor' else 'Continue Telemonitoring')}
 """
             return note.strip()
 

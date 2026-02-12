@@ -7,8 +7,9 @@ class SignalQualityControl:
     """
     
     MIN_DURATION = 0.5  # Relaxed for short test clips
-    MAX_CLIPPING_RATIO = 0.50 # Relaxed to 50%
-    MIN_RMS = 0.001 # Extremely permissive for test data
+    MIN_DURATION = 0.5  # Relaxed for short test clips
+    MAX_CLIPPING_RATIO = 0.05 # Stricter: 5% Max Clipping
+    MIN_RMS = 0.005 # Stricter: Reject absolute silence
     
     @staticmethod
     def assess_quality(y: np.ndarray, sr: int) -> dict:
