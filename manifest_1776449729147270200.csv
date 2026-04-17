@@ -1,0 +1,2 @@
+ID,name,versionNumber,contentType,dataFileSizeBytes,createdBy,createdOn,modifiedBy,modifiedOn,parentId,synapseURL,dataFileMD5Hex,path,error
+syn6035822,tapFeatures.tsv,1,text/tab-separated-values,57858395,273979,1461955717493,273979,1461955717493,syn5608426,https://www.synapse.org/#!Synapse:syn6035822.1,2cdfd6c506c0ab2e71adcbd6a82de2d2,c:\users\shashwat\.synapsecache\192\8674192\tapfeatures.tsv,

@@ -9,9 +9,9 @@ try:
     print("Importing pipeline...", flush=True)
     from medgemma_pd.audio_pipeline.validation import InputValidator
     from medgemma_pd.audio_pipeline.preprocessing import AudioPreprocessor
-    from medgemma_pd.audio_pipeline.quality_control import QualityControl
+    from medgemma_pd.audio_pipeline.quality_control import SignalQualityControl
     from medgemma_pd.audio_pipeline.features import FeatureExtractor
-    from medgemma_pd.reasoning.history_loader import HistoryLoader
+    from medgemma_pd.history_loader.loader import HistoryLoader
     from medgemma_pd.reasoning.engine import MedGemmaEngine
     print("Imports Success", flush=True)
 except Exception as e:
@@ -19,14 +19,15 @@ except Exception as e:
     exit(1)
 
 # Configuration
-DATASET_ROOT = r"dataset- MDVR-KCL Dataset\26_29_09_2017_KCL\26-29_09_2017_KCL\ReadText"
+DATASET_ROOT = r"./data/mpower_dataset"
 OUTPUT_FILE = "results.csv"
 
 def main():
     print("Running Main...", flush=True)
     try:
-        hc_files = glob.glob(os.path.join(DATASET_ROOT, "HC", "*.wav"))
-        pd_files = glob.glob(os.path.join(DATASET_ROOT, "PD", "*.wav"))
+        # Check for both .wav and .m4a
+        hc_files = glob.glob(os.path.join(DATASET_ROOT, "HC", "*.wav")) + glob.glob(os.path.join(DATASET_ROOT, "HC", "*.m4a"))
+        pd_files = glob.glob(os.path.join(DATASET_ROOT, "PD", "*.wav")) + glob.glob(os.path.join(DATASET_ROOT, "PD", "*.m4a"))
         all_files = hc_files + pd_files
         print(f"Found {len(all_files)} files.", flush=True)
         
