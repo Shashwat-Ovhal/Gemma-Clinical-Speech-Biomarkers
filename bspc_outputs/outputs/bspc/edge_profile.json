@@ -1,0 +1,8 @@
+{
+  "student": {
+    "mean_latency_ms": 22.5,
+    "std_latency_ms": 2.07,
+    "model_size_mb": 1.1,
+    "n_params": 287714
+  }
+}

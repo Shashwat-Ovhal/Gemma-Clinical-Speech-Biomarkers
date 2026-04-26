@@ -56,8 +56,13 @@ class MedGemmaEngine:
             trend = history.get("trend_analysis", {}).get("updrs_trend", "Data Unavailable")
             delta = history.get("trend_analysis", {}).get("delta_updrs", 0.0)
             
-            # 3. Construct Narrative (Prompt Engineering Logic)
-            # Use the risk score calculated by the ML layer, not a hardcoded threshold here
+            # 3. Extract XAI Context (Explainability Bridge)
+            xai_insights = data_packet.get("model_signals", {}).get("xai_insights", {})
+            top_features = xai_insights.get("top_features", ["None available"])
+            attention_focus = xai_insights.get("attention_focus", "Unknown")
+            
+            # 4. Construct Narrative (Prompt Engineering Logic)
+            # Use the risk score calculated by the ML layer
             assessment = "At Risk" if risk > 0.6 else "Stable"
             if 0.3 < risk <= 0.6: assessment = "Monitor"
             
@@ -77,9 +82,14 @@ Analysis of speech biomarkers suggests {assessment.lower()} motor control.
 2.  **Longitudinal Context (UCI History)**:
     *   UPDRS Trend: **{trend.title()}**
     *   Change from Baseline: {delta:+.2f} points
+
+3.  **Explainability Analysis (XAI)**:
+    *   Primary Drivers (SHAP): {', '.join(top_features)}
+    *   Acoustic Attention Focus: {attention_focus}
     
-3.  **Synthesis**:
-    The acoustic features (Risk={risk:.2f}) are {'concordant' if (risk > 0.5 and trend == 'deteriorating') else 'divergent'} with the historical UPDRS trend.
+4.  **Synthesis**:
+    The acoustic features (Risk={risk:.2f}) are {'concordant' if (risk > 0.5 and trend == 'deteriorating') else 'divergent'} with the historical UPDRS trend. 
+    The deep learning model's confidence is heavily driven by anomalies in {top_features[0] if top_features else 'the acoustic signal'}, localized to {attention_focus}.
     
 **Recommendation**:
 {'Schedule Neurology Review' if assessment == 'At Risk' else ('Monitor Closely' if assessment == 'Monitor' else 'Continue Telemonitoring')}

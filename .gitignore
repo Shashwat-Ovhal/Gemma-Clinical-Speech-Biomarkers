@@ -29,3 +29,6 @@ medgemma_pd/ui/data.js
 # OS
 .DS_Store
 Thumbs.db
+
+# Cleanup
+archive/
