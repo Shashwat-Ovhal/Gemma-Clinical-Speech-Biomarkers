@@ -175,6 +175,16 @@ def plot_attention_heatmap(
 
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        
+        # Export CSV Data
+        import pandas as pd
+        df_attn = pd.DataFrame({
+            "Time_s": shimmer_times,
+            "Frame_Shimmer": frame_shimmer,
+            "Attention_Weight": attn_interp
+        })
+        df_attn.to_csv(save_path.replace(".png", ".csv"), index=False)
+        
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
         print(f"  Figure saved: {save_path}")
     plt.show()

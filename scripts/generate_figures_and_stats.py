@@ -96,6 +96,17 @@ def plot_roc_curves():
     plt.title('Receiver Operating Characteristic - mPower Cohort')
     plt.legend(loc="lower right")
     plt.tight_layout()
+    
+    # Export CSV Data
+    roc_data = []
+    for r in results:
+        y_true = np.array(r["y_true"])
+        y_prob = np.array(r["y_prob"])
+        fpr, tpr, _ = roc_curve(y_true, y_prob)
+        for f, t in zip(fpr, tpr):
+            roc_data.append({"Model": r["model"], "FPR": f, "TPR": t})
+    pd.DataFrame(roc_data).to_csv(ROC_IMG.replace(".png", ".csv"), index=False)
+    
     plt.savefig(ROC_IMG, dpi=300)
     plt.close()
     print(f"  [+] ROC curve figure saved successfully to {ROC_IMG}")
@@ -142,6 +153,13 @@ def plot_shap_importance():
         plt.figure(figsize=(10, 8))
         shap.summary_plot(shap_values_plot, X_train_df, show=False)
         plt.tight_layout()
+        
+        # Export CSV Data
+        mean_shap = np.abs(shap_values_plot).mean(axis=0)
+        shap_df = pd.DataFrame({"Feature": features, "Mean_Abs_SHAP": mean_shap})
+        shap_df = shap_df.sort_values(by="Mean_Abs_SHAP", ascending=False)
+        shap_df.to_csv(SHAP_IMG.replace(".png", ".csv"), index=False)
+        
         plt.savefig(SHAP_IMG, dpi=300)
         plt.close()
         print(f"  [+] SHAP feature importance saved successfully to {SHAP_IMG}")
@@ -213,6 +231,17 @@ def plot_pr_curves():
     plt.title('Precision-Recall Curve - mPower Cohort')
     plt.legend(loc="lower left")
     plt.tight_layout()
+    
+    # Export CSV Data
+    pr_data = []
+    for r in results:
+        y_true = np.array(r["y_true"])
+        y_prob = np.array(r["y_prob"])
+        precision, recall, _ = precision_recall_curve(y_true, y_prob)
+        for p, rec in zip(precision, recall):
+            pr_data.append({"Model": r["model"], "Precision": p, "Recall": rec})
+    pd.DataFrame(pr_data).to_csv(PR_IMG.replace(".png", ".csv"), index=False)
+    
     plt.savefig(PR_IMG, dpi=300)
     plt.close()
     print(f"  [+] PR curve figure saved successfully to {PR_IMG}")
@@ -231,6 +260,12 @@ def plot_confusion_matrix():
     disp.plot(cmap=plt.cm.Blues)
     plt.title(f"Confusion Matrix: {best_r['model']}")
     plt.tight_layout()
+    
+    # Export CSV Data
+    tn, fp, fn, tp = cm.ravel()
+    cm_df = pd.DataFrame([{"Model": best_r["model"], "TN": tn, "FP": fp, "FN": fn, "TP": tp}])
+    cm_df.to_csv(CM_IMG.replace(".png", ".csv"), index=False)
+    
     plt.savefig(CM_IMG, dpi=300)
     plt.close()
     print(f"  [+] Confusion Matrix saved successfully to {CM_IMG}")

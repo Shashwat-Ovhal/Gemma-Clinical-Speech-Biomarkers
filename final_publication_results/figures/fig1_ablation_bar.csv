@@ -1,0 +1,8 @@
+Architecture,AUC,CI_Lower,CI_Upper
+Classical + RF,0.688,0.59,0.783
+TQWT + Classical + RF ★,0.691,0.589,0.786
+wav2vec Full Fine-tune,0.502,0.396,0.604
+wav2vec Frozen + Adapters,0.605,0.498,0.705
+Cross-Attention Fusion,0.6249525600148021,0.5283393223373192,0.729954117792772
+TQWT + MFCCs + RF,0.332,0.242,0.44
+Edge Student (Distilled),0.595,0.4983,0.7

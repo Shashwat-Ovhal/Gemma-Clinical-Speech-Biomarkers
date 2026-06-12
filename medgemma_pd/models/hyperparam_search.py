@@ -43,6 +43,11 @@ def run_hyperparameter_search():
     plt.ylabel("Validation AUC")
     plt.grid(True)
     plt.tight_layout()
+    
+    # Export CSV Data
+    df_q = pd.DataFrame({"Q_Factor": Q_VALUES, "Validation_AUC": q_aucs})
+    df_q.to_csv(os.path.join(OUTPUT_DIR, "sensitivity_q_factor.csv"), index=False)
+    
     plt.savefig(os.path.join(OUTPUT_DIR, "sensitivity_q_factor.png"), dpi=300)
     plt.close()
     
@@ -57,6 +62,11 @@ def run_hyperparameter_search():
     plt.ylabel("Validation AUC")
     plt.grid(True)
     plt.tight_layout()
+    
+    # Export CSV Data
+    df_f = pd.DataFrame({"Frozen_Layers": f_layers, "Validation_AUC": f_aucs})
+    df_f.to_csv(os.path.join(OUTPUT_DIR, "sensitivity_frozen_layers.csv"), index=False)
+    
     plt.savefig(os.path.join(OUTPUT_DIR, "sensitivity_frozen_layers.png"), dpi=300)
     plt.close()
     

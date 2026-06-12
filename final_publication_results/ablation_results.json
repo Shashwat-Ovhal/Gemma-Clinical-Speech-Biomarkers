@@ -1,0 +1,51 @@
+[
+  {
+    "row": "A1",
+    "desc": "Classical + RF (Level 1 baseline)",
+    "auc": 0.688,
+    "ci_lo": 0.59,
+    "ci_hi": 0.783
+  },
+  {
+    "row": "A2",
+    "desc": "TQWT Denoised + Classical + RF",
+    "auc": 0.691,
+    "ci_lo": 0.589,
+    "ci_hi": 0.786
+  },
+  {
+    "row": "A3",
+    "desc": "wav2vec full fine-tune",
+    "auc": 0.502,
+    "ci_lo": 0.396,
+    "ci_hi": 0.604
+  },
+  {
+    "row": "A4",
+    "desc": "wav2vec frozen encoder + adapters",
+    "auc": 0.605,
+    "ci_lo": 0.498,
+    "ci_hi": 0.705
+  },
+  {
+    "row": "A5",
+    "desc": "Full Cross-Attention Fusion System",
+    "auc": 0.6249525600148021,
+    "ci_lo": 0.5283393223373192,
+    "ci_hi": 0.729954117792772
+  },
+  {
+    "row": "A7",
+    "desc": "TQWT Denoised + MFCCs + RF",
+    "auc": 0.332,
+    "ci_lo": 0.242,
+    "ci_hi": 0.44
+  },
+  {
+    "row": "A6",
+    "desc": "Knowledge-Distilled Student (Edge)",
+    "auc": 0.595,
+    "ci_lo": 0.4983,
+    "ci_hi": 0.7
+  }
+]

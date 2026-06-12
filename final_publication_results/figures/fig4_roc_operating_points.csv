@@ -1,0 +1,5 @@
+Model,FPR_1_Minus_Specificity,Sensitivity_TPR
+Logistic Regression,0.483,0.717
+XGBoost (Tuned),0.383,0.667
+SVM - RBF (Baseline),0.5,0.633
+Random Forest (Best),0.417,0.683

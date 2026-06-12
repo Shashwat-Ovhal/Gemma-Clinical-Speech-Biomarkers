@@ -1,4 +1,4 @@
-# MedGemma-PD: Agentic Physiological Speech Biomarker Pipeline for Unconstrained Remote Parkinson's Disease Monitoring
+# Wavelet-Anchored Cross-Attention Fusion with Edge Knowledge Distillation for Robust Parkinson's Disease Acoustic Biomarker Analysis
 
 <p align="center">
   <img src="./assets/medgemma_banner.jpg" alt="MedGemma-PD Banner" width="100%"/>
@@ -6,12 +6,10 @@
 
 ## Overview
 
-**MedGemma-PD** is a research-grade acoustic processing pipeline designed to diagnose Parkinson’s Disease (PD) from unconstrained, noisy smartphone voice recordings. It neutralizes demographic confounders (like age) and fuses classical physiological feature extraction with a lightweight localized Large Language Model (Gemma) to generate readable, actionable clinical triage narratives for neurologists.
+**Wavelet-Anchored Cross-Attention Fusion with Edge Knowledge Distillation for Robust Parkinson's Disease Acoustic Biomarker Analysis** is a research-grade acoustic processing pipeline designed to diagnose Parkinson’s Disease (PD) from unconstrained, noisy smartphone voice recordings. It neutralizes demographic confounders (like age) and fuses classical physiological feature extraction with a lightweight localized Large Language Model (Gemma) to generate readable, actionable clinical triage narratives for neurologists.
 
 This repository serves as the official codebase and data supplement for the manuscript:
-> *"MedGemma-PD: An Agentic Physiological Speech Biomarker Pipeline for Unconstrained Remote Parkinson's Disease Monitoring"* 
-> (Prepared for *npj Digital Medicine* / *IEEE JBHI*).
-
+> *"Wavelet-Anchored Cross-Attention Fusion with Edge Knowledge Distillation for Robust Parkinson's Disease Acoustic Biomarker Analysis"* 
 ---
 
 ## 🔬 Core Scientific Innovations
@@ -42,7 +40,7 @@ The comprehensive ablation study proves the supremacy of our hybrid architecture
 
 The repository has been structured for reproducibility and peer review:
 
-```
+```text
 Gemma-Clinical-Speech-Biomarkers/
 ├── manuscript/
 │   ├── research_paper_draft.md         # Final publication-ready manuscript

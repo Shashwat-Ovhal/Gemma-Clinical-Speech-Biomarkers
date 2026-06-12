@@ -12,6 +12,7 @@ Outputs all figures to: final_publication_results/figures/
 import json
 import os
 import numpy as np
+import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -88,6 +89,11 @@ ax.set_title("Figure 1. Ablation Study: AUC-ROC across all 7 architectures\n"
              fontsize=11, pad=12)
 ax.legend(fontsize=9)
 plt.tight_layout()
+
+# Export CSV Data
+df1 = pd.DataFrame({"Architecture": labels, "AUC": aucs, "CI_Lower": ci_lo, "CI_Upper": ci_hi})
+df1.to_csv(f"{OUT_DIR}/fig1_ablation_bar.csv", index=False)
+
 plt.savefig(f"{OUT_DIR}/fig1_ablation_bar.png", dpi=300)
 plt.close()
 print("[+] Figure 1 saved: fig1_ablation_bar.png")
@@ -114,6 +120,11 @@ ax.set_title("Figure 2. SHAP Feature Importance\n"
              "Shimmer (38.2%) and Jitter (31.8%) are the dominant PD biomarkers",
              fontsize=11, pad=12)
 plt.tight_layout()
+
+# Export CSV Data
+df2 = pd.DataFrame({"Feature": feature_names, "Importance": shap_importance})
+df2.to_csv(f"{OUT_DIR}/fig2_shap_importance.csv", index=False)
+
 plt.savefig(f"{OUT_DIR}/fig2_shap_importance.png", dpi=300)
 plt.close()
 print("[+] Figure 2 saved: fig2_shap_importance.png")
@@ -126,6 +137,8 @@ curve_configs = [
     ("A4", "wav2vec Frozen + Adapters", "#F39C12"),
     ("A5", "Cross-Attention Fusion", "#9B59B6"),
 ]
+
+df3_data = {"Epoch": np.arange(1, 26)}
 
 for ax, (row, title, color) in zip(axes, curve_configs):
     npy_path = f"{RESULTS_DIR}/learning_curve_{row}.npy"
@@ -160,12 +173,20 @@ for ax, (row, title, color) in zip(axes, curve_configs):
     ax.set_xlabel("Epoch", fontsize=9)
     ax.legend(fontsize=8)
     ax.set_ylim(0.3, 1.0)
+    
+    df3_data[f"{row}_Train_AUC"] = list(train_auc)
+    df3_data[f"{row}_Val_AUC"] = list(val_auc)
 
 axes[0].set_ylabel("AUC-ROC", fontsize=10)
 fig.suptitle("Figure 3. Training vs. Validation Learning Curves (Neural Ablation Rows)\n"
              "A3's gap reveals overfitting; A5 (Fusion) shows improved regularization",
              fontsize=11, y=1.02)
 plt.tight_layout()
+
+# Export CSV Data
+df3 = pd.DataFrame(df3_data)
+df3.to_csv(f"{OUT_DIR}/fig3_learning_curves.csv", index=False)
+
 plt.savefig(f"{OUT_DIR}/fig3_learning_curves.png", dpi=300, bbox_inches="tight")
 plt.close()
 print("[+] Figure 3 saved: fig3_learning_curves.png")
@@ -195,6 +216,12 @@ ax.set_xlim(0, 1); ax.set_ylim(0, 1)
 ax.set_title("Figure 4. ROC Operating Point Comparison\nAll four classifiers on the age-matched mPower cohort (N=120)",
              fontsize=11, pad=12)
 plt.tight_layout()
+
+# Export CSV Data
+fig4_data = [{"Model": name, "FPR_1_Minus_Specificity": x, "Sensitivity_TPR": y} for name, x, y, c in models_coords]
+df4 = pd.DataFrame(fig4_data)
+df4.to_csv(f"{OUT_DIR}/fig4_roc_operating_points.csv", index=False)
+
 plt.savefig(f"{OUT_DIR}/fig4_roc_operating_points.png", dpi=300)
 plt.close()
 print("[+] Figure 4 saved: fig4_roc_operating_points.png")
@@ -230,6 +257,11 @@ fig.suptitle("Figure 5. Edge Distillation Profile: Teacher vs. Student Model\n"
              f"Student: 287,714 parameters | 31.9 ± 25.5 ms CPU latency | 1.1 MB",
              fontsize=11, y=1.02)
 plt.tight_layout()
+
+# Export CSV Data
+df5 = pd.DataFrame({"Model": model_names, "Latency_ms": latencies, "Std_Latency_ms": stds, "Size_MB": sizes})
+df5.to_csv(f"{OUT_DIR}/fig5_edge_profile.csv", index=False)
+
 plt.savefig(f"{OUT_DIR}/fig5_edge_profile.png", dpi=300, bbox_inches="tight")
 plt.close()
 print("[+] Figure 5 saved: fig5_edge_profile.png")

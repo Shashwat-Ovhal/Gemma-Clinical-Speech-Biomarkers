@@ -1,0 +1,5 @@
+Model,Latency_ms,Std_Latency_ms,Size_MB
+"Full Cross-Attention
+(Teacher)",250.0,35.0,412.0
+"Edge Student
+(Distilled)",31.9,25.54,1.1
